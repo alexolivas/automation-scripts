@@ -56,18 +56,17 @@ def sort_desktop_files():
 
             src_path = f"{desktop_dir}/{filename}"
             is_directory = os.path.isdir(src_path)
-            if is_directory:
-                if os.path.islink(src_path):
-                    print(f"**** ignoreing symlinked directory: {src_path} ")
-                    # Symlinked directories are to be ignored
-                    continue
-            else:
-                # This line throws an error if the path is a directory, that's why
-                # the directory logic is on its own
+
+            if os.path.islink(src_path):
+                # Symlinks are to be ignored
+                continue
+            elif filename.startswith("Screen Shot"):
+                dest_dir = sort_rules["screen_shot"]
+            elif not is_directory:
+                # When this path is not a directory, check if it is a valid
+                # image and if so, send it to the "image" directory
                 image_file_type = imghdr.what(src_path)
-                if filename.startswith("Screen Shot"):
-                    dest_dir = sort_rules["screen_shot"]
-                elif image_file_type is not None:
+                if image_file_type is not None:
                     dest_dir = sort_rules["image"]
 
             # TODO: add logic to rename a file if it already exists
