@@ -10,6 +10,7 @@ Requirements:
 """
 import imghdr
 import os
+import shutil
 
 from pathlib import Path
 
@@ -18,7 +19,15 @@ from watchdog.events import FileSystemEventHandler
 
 
 home_dir = str(Path.home())
+documents_dir = f"{home_dir}/Documents"
 print(f"Home directory: {home_dir}")
+print(f"Documents directory: {documents_dir}")
+
+sort_rules = {
+    "image": "Images",
+    "misc": "Miscellaneous",
+    "screen_shot": "Screenshots",
+}
 
 def create_sort_directories():
     """
@@ -26,12 +35,8 @@ def create_sort_directories():
     script will be sorting any file created on the desktop
     """
     # TODO: we could make this configurable somehow, look into this for the next version
-    sort_directories = [
-        "Images",
-        "Screenshots",
-        "Miscellaneous",
-    ]
-    for sort_directory in sort_directories:
+    # TODO: This should also be a key/value pair so that the rules and directories can be dynamic
+    for sort_directory in sort_rules.values():
         # TODO Make the base directory configurable
         new_dir = f"{home_dir}/Documents/{sort_directory}"
         Path(new_dir).mkdir(parents=True, exist_ok=True)
@@ -41,35 +46,40 @@ def sort_desktop_files():
     This method is responsible for sorting any file created on the
     desktop into a directory based on pre-configured rules
     """
+    ignore_files = [".DS_Store", ".localized"]
     desktop_dir = f"{home_dir}/DESKTOP"
-    num_screenshots = 0
-    num_png = 0
-    num_pdf = 0
-    num_directories = 0
-    num_unknown = 0
-    for filename in os.listdir(desktop_dir):
-        if filename.startswith("Screen Shot"):
-            num_screenshots += 1
-        elif filename.endswith(".pdf"):
-            num_pdf += 1
-        elif os.path.isdir(f"{desktop_dir}/{filename}"):
-            num_directories += 1
-        else:
-            image_file_type = imghdr.what(f"{desktop_dir}/{filename}")
-            if image_file_type is not None:
-                num_png += 1
-            else:
-                num_unknown += 1
-        # print(filename)
 
-    print(f"Num screenshots: {str(num_screenshots)}")
-    print(f"Num pdf: {str(num_pdf)}")
-    print(f"Num images: {str(num_png)}")
-    print(f"Num directories: {str(num_directories)}")
-    print(f"Num unknown: {str(num_unknown)}")
+    for filename in os.listdir(desktop_dir):
+        if filename not in ignore_files:
+            # The default destination location is the "miscellaneous" directory
+            dest_dir = sort_rules["misc"]
+
+            src_path = f"{desktop_dir}/{filename}"
+            is_directory = os.path.isdir(src_path)
+            if is_directory:
+                if os.path.islink(src_path):
+                    print(f"**** ignoreing symlinked directory: {src_path} ")
+                    # Symlinked directories are to be ignored
+                    continue
+            else:
+                # This line throws an error if the path is a directory, that's why
+                # the directory logic is on its own
+                image_file_type = imghdr.what(src_path)
+                if filename.startswith("Screen Shot"):
+                    dest_dir = sort_rules["screen_shot"]
+                elif image_file_type is not None:
+                    dest_dir = sort_rules["image"]
+
+            # TODO: add logic to rename a file if it already exists
+
+            # Actually move the file or directory
+            dest_path = f"{documents_dir}/{dest_dir}/{filename}"
+            shutil.move(src_path, dest_path)
+
 
 # class DesktopWatcher(FileSystemEventHandler):
 #     pass
+
 
 create_sort_directories()
 sort_desktop_files()
