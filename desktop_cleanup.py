@@ -13,7 +13,7 @@ home_dir = str(Path.home())
 desktop_dir = f"{home_dir}/DESKTOP"
 
 
-class DesktopWatchHandler(FileSystemEventHandler):
+class DesktopCleanupHandler(FileSystemEventHandler):
     """
     Watches for file system events on the user's desktop and when anything is
     modified on there this handler sorts whatever is created into a specific
@@ -96,9 +96,9 @@ class DesktopWatchHandler(FileSystemEventHandler):
 
 
 if __name__ == "__main__":
-    desktop_watch_handler = DesktopWatchHandler()
+    desktop_cleanup_handler = DesktopCleanupHandler()
     observer = Observer()
-    observer.schedule(desktop_watch_handler, desktop_dir, recursive=True)
+    observer.schedule(desktop_cleanup_handler, desktop_dir, recursive=True)
     observer.start()
     try:
         while True:

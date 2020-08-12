@@ -20,7 +20,9 @@ Then activate it
 pyenv activate <virtualenv-name>
 ```
 
-### Dependencies
+### `desktop_cleanup.py`
+
+This script is responsible for monitoring your computer's desktop directory and automatically sorting any files or directories that you create on there into your `Documents` folder, with the ultimately goal of keeping your desktop clutter free.
 
 This project only depends on `watchdog` to watch for file changes. Run the following command to install this
 
@@ -28,11 +30,9 @@ This project only depends on `watchdog` to watch for file changes. Run the follo
 pip install watchdog
 ```
 
-### Automator
+#### Automate Task
 
 On a mac you can use the built-in automator to automate your these python scripts.
-
-#### `bash desktop_watcher.py`
 
 Open automator
 
@@ -44,19 +44,19 @@ Type the following in the text area:
 
 ```bash
 cd /<directory-to-local-repo>/automation-scripts/
-/<python-location>/python desktop_watcher.py
+/<python-location>/python desktop_cleanup.py
 ```
 
 NOTE: if you are using pyenv you can set the python version you want to run by running your script like this:
 
 ```bash
 # You can get this location by activating your virtualenv and running "pyenv which python"
-/Users/<username>/.pyenv/versions/<virtualenv-name>/bin/python desktop_watcher.py
+/Users/<username>/.pyenv/versions/<virtualenv-name>/bin/python desktop_cleanup.py
 ```
 
 Save the automation task
 
-### Schedule
+#### Schedule
 
 To run it on startup, go to System Preferences > Users and Groups > Login Items
 
